@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dep</title>
+</head>
+<body>
+    <h3>一个最简单的依赖追踪</h3>
+    <h4>打开控制台</h4>
+    <script>
+        let activeEffect
+
+        class Dep {
+            constructor(value) {
+                this.subscribers = new Set()
+                this._value = value
+            }
+           get value() {
+            this.depend()
+            return this._value
+           }
+
+           set value(newValue) {
+            this._value = newValue
+            this.notify()
+           }
+            depend() {
+                if (activeEffect) {
+                    this.subscribers.add(activeEffect)
+                }
+            }
+
+            notify() {
+             this.subscribers.forEach((sub)=>{
+               sub()
+             })
+            }
+        }
+
+        function watchEffect(effect) {
+            activeEffect = effect
+            effect()
+            activeEffect=null
+        }
+
+        const dep = new Dep()
+
+        dep.value='hello'
+        
+        watchEffect(() =>
+         {
+            console.log(dep.value)
+         }
+        )
+        //当调用这个函数的时候，
+        //watchEffect(effect)要再次运行
+        /**
+         * 1.要把effect放入subscriber
+         * 如何做到引入`activeEffect`全局比哪里，在watchEffect中加入activeEffect
+         * 这样dep.depend()就会验证activeEffect变量是否为空
+         
+         * 
+         */
+        /**
+         *
+         * 把depend和notify放入getter/setter不用手动调用
+         * 
+        */
+       dep.value = 'changed'
+        </script>
+</body>
+</html>

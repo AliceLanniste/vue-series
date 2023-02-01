@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reactive</title>
+</head>
+<body>
+    <h3>miniReactive</h3>
+    <h4>打开控制台</h4>
+    <script>
+        let activeEffect
+
+        class Dep {
+            constructor(value) {
+                this.subscribers = new Set()
+                this._value = value
+            }
+        //    get value() {
+        //     this.depend()
+        //     return this._value
+        //    }
+
+        //    set value(newValue) {
+        //     this._value = newValue
+        //     this.notify()
+        //    }
+            depend() {
+                if (activeEffect) {
+                    this.subscribers.add(activeEffect)
+                }
+            }
+
+            notify() {
+             this.subscribers.forEach((sub)=>{
+               sub()
+             })
+            }
+        }
+
+        function watchEffect(effect) {
+            activeEffect = effect
+            effect()
+            activeEffect=null
+        }
+
+        //使用vue2风格
+        //缺点是当我们要添加属性的时候，无法自动添加get/set
+        function reactiveVue2(raw) {
+            Object.keys(raw).forEach((key) =>{
+                let dep = new Dep()
+                let value = raw[key]
+
+                Object.defineProperty(raw,key, {
+                    get() {
+                        dep.depend()
+                        return value
+                    },
+                    set(newValue) {
+                        value= newValue
+                        dep.notify()
+                    }
+                })
+            })
+            return raw
+        }
+
+        //vue3使用 proxy
+        function getHandler(target,key) {
+            let depsMap = targetMap.get(target)
+                if (!depsMap) {
+                    depsMap = new Map()
+                    targetMap.set(target,depsMap)
+                }
+                console.log('depsMap',depsMap,targetMap)
+                let dep = depsMap.get(key)
+                if (!dep) {
+                    dep = new Dep()
+                    depsMap.set(key,dep)
+                }
+                console.log('depsMap dep',depsMap,dep)
+                return dep
+        }
+
+        const targetMap = new WeakMap()
+        const receiverHandler = {
+            get(target,key,receiver) {
+               let dep = getHandler(target,key)
+                dep.depend()
+                return Reflect.get(target,key,receiver)
+            },
+            set(target,key,value,receiver) {
+                let dep = getHandler(target,key)
+                const result =Reflect.set(target,key,value,receiver)
+                dep.notify()
+                return result
+            }
+        }
+        // vue3
+        function reactive(raw) {
+            return new Proxy(raw,receiverHandler)
+        }
+
+        const state = reactive({
+            count:0
+        })
+        watchEffect(() => console.log(state.count))
+        state.count++
+        </script>
+</body>
+</html>
+
+watchEffect调用effect函数触发proxy的getter,getter触发getHandler,把count=>newDep(),返回的dep
+就调用depend()方法，把effect塞进去，当state.count++触发setter触发getHandler获取同样的dep 然后notify。为啥不用property绑定dep因为，使用proxy
+target是唯一用来区分标志，如果是用property，那么不同对象相同proerty会导致问题。
+getHandler也是个做好区分namespace的好方法。
+
+WeakMap，map,object
+WeakMap只能用对象当key，当对象删除weakup中相应数据也同时删除,所以这里用weakMap做数据容器是很好存在，当对象没有就删除依赖
+object只能用string或者symbol当key
+map任何类型都可以当key
+
+依赖追踪
+
+
