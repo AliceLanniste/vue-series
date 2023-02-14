@@ -1,3 +1,4 @@
+let globalEffect
 class dependences {
     constructor() {
         this.subscribers = new Set()
@@ -5,7 +6,12 @@ class dependences {
 
 
     depend() {
-        this.subscribers.add(sub)
+        console.log('depnedece depend',globalEffect)
+        if (globalEffect) {
+            
+            this.subscribers.add(globalEffect)
+        }
+       
     }
 
     notify() {
@@ -26,7 +32,7 @@ function reactive2(raw) {
             let value = raw[key]
             Object.defineProperty(raw,key, {
                 get: function () {
-                    console.log('get')
+                    console.log('get',value)
                     dep.depend()
                     return value
                 },
@@ -47,9 +53,7 @@ function reactive2(raw) {
 }
 
 
-let rawData= reactive2({count:1})
-console.log('rawData',rawData.count)
-rawData.count = 45
+
 
 /**
  * 现在的问题是value已经变化了，如何加入subscriber

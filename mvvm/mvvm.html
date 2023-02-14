@@ -7,11 +7,20 @@
     <title>MVVM</title>
 </head>
 <body>
-    
+    <div id="mvvm-app">{{ getHelloWord }}</div>
     <script src="./observer.js"></script>
     <script src ="./watch.js"></script>
-    <script src=""></script>
+    <script src="./compiler.js"></script>
     <script src="./mvvm.js"></script>
+
+    <script>
+        let vm = new MVVM({
+        el: '#mvvm-app',
+        data: {
+            getHelloWord:'hello'
+        },
+    })
+        </script>
 
 </body>
 </html>
