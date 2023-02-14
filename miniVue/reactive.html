@@ -107,20 +107,22 @@
         })
         watchEffect(() => console.log(state.count))
         state.count++
+        /**
+         *  watchEffect调用effect函数触发proxy的getter,getter触发getHandler,把count=>newDep(),返回的dep
+            就调用depend()方法，把effect塞进去，当state.count++触发setter触发getHandler获取同样的dep 然后notify。为啥不用property绑定dep因为，使用proxy
+            target是唯一用来区分标志，如果是用property，那么不同对象相同proerty会导致问题。
+            getHandler也是个做好区分namespace的好方法。
+
+            WeakMap，map,object
+            WeakMap只能用对象当key，当对象删除weakup中相应数据也同时删除,所以这里用weakMap做数据容器是很好存在，当对象没有就删除依赖
+            object只能用string或者symbol当key
+            map任何类型都可以当key
+         * 
+         */ 
         </script>
 </body>
 </html>
 
-watchEffect调用effect函数触发proxy的getter,getter触发getHandler,把count=>newDep(),返回的dep
-就调用depend()方法，把effect塞进去，当state.count++触发setter触发getHandler获取同样的dep 然后notify。为啥不用property绑定dep因为，使用proxy
-target是唯一用来区分标志，如果是用property，那么不同对象相同proerty会导致问题。
-getHandler也是个做好区分namespace的好方法。
 
-WeakMap，map,object
-WeakMap只能用对象当key，当对象删除weakup中相应数据也同时删除,所以这里用weakMap做数据容器是很好存在，当对象没有就删除依赖
-object只能用string或者symbol当key
-map任何类型都可以当key
-
-依赖追踪
 
 
