@@ -3,6 +3,7 @@
 class MVVM{
     constructor(options) {
         this.el = options.el
+        this.options = options
         let data = options.data || {}
         let that = this
         this.data =reactive2(data)
@@ -10,16 +11,17 @@ class MVVM{
             that._proxyData(key);
         });
         
-        console.log('mvvm',this.data)
         this.$compile = new Compiler(this.el,this)
-        
+                                        
         
     }
 
     $watch(effect) {
         console.log('mvvm$watch',effect)
         watch(effect)
+      
     }
+    
     _proxyData(key) {
         let that = this;
         Object.defineProperty(that, key, {
@@ -34,5 +36,19 @@ class MVVM{
         });
     }
     
+    _initComputed() {
+        let computed = this.options.computed
+        let that = this
+        Object.keys(computed).forEach((key)=>{
+            Object.defineProperty(that,key,{
+                get:  typeof computed[key] ==='function'
+                            ?computed[key]()
+                            :computed[key],
 
+                set: function (newValue) {
+                    
+                }
+            })
+        })
+    }
 }
