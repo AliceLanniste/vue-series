@@ -45,6 +45,9 @@ class Compiler {
             if (that.isDirective(attrName)) {
                 let value = attribute.value
                 let subName = attrName.substring(2)
+                if(attrName ==='v-model') {
+                    that.compileModel(node,value)
+                }
                 if (that.isEventDirective(subName)) {
                     that.eventHandler(node,this.$vm,value,subName)
                 } else {
@@ -60,6 +63,20 @@ class Compiler {
        this.getVMData(this.$vm,node,text)
     }
 
+    compileModel(node,name) {
+        let value = this.$vm[name]
+        let innervm = this.$vm
+        this.updateModel(node,value)
+        innervm.$watch(()=>this.updateModel(node,value))
+
+        node.addEventListener('input', e => {
+            let newValue = e.target.value;
+            if (value === newValue) {
+                return;
+            }
+            innervm[name] = newValue;
+        });
+    }
 
     createFragment(el) {
         let fragement = document.createDocumentFragment()
@@ -73,6 +90,9 @@ class Compiler {
         return fragement
     }
 
+    updateModel(node,value) {
+        node.value =value
+    }
     isElementNode(node) {
         return node.nodeType === 1
     }
@@ -86,7 +106,6 @@ class Compiler {
     }
 
     isEventDirective(name) {
-        console.log('isEventDirective',name)
         return name.indexOf('on') === 0;
     }
   

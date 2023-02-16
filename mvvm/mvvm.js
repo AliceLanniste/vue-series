@@ -11,6 +11,7 @@ class MVVM{
             that._proxyData(key);
         });
         
+        this._initComputed()
         this.$compile = new Compiler(this.el,this)
                                         
         
@@ -41,8 +42,9 @@ class MVVM{
         let that = this
         Object.keys(computed).forEach((key)=>{
             Object.defineProperty(that,key,{
+                
                 get:  typeof computed[key] ==='function'
-                            ?computed[key]()
+                            ?computed[key].bind(that)
                             :computed[key],
 
                 set: function (newValue) {
