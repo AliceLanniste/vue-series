@@ -23,7 +23,6 @@ class Compiler {
             let text = node.textContent;
             let reg = /\{\{(.*)\}\}/g;
             let array; 
-            console.log('isElementNode',node)
             if (that.isElementNode(node)) {
                
                 that.compileElement(node)
@@ -65,8 +64,12 @@ class Compiler {
     createFragment(el) {
         let fragement = document.createDocumentFragment()
         let child = el.firstChild
-        console.log('isElementNode childnodes',child)
-        fragement.appendChild(child)
+        while(child) {
+            fragement.appendChild(child)
+            child = el.firstChild;
+
+        }
+      
         return fragement
     }
 
