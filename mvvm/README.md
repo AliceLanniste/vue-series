@@ -1,6 +1,7 @@
 什么是mvvm？
-![mvvm](/assets/mvvm.PNG "mvvm")
 mvvm就是model-view-viewModel一种软件架构方式。 view是ui组件并接受用户的数据输入，viewModel连通view和model，model封装程序逻辑，viewModel得到数据调用model层封装的逻辑。
+![mvvm](/assets/mvvm.PNG "mvvm")
+
 
 vue.js就是个mvvm架构的框架，
 ```
