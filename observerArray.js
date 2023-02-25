@@ -97,8 +97,12 @@ let obj = {
 
 // vue2无法检测 property 的添加或移除。使用Vue.set(vm.someObject, 'b', 2)，来添加
 
-//要检测数组变化的,覆盖影响数组变化的方法
-
+//Vue2无法检测数组通过索引赋值，vm.items[indexOfItem] = newValue
+//修改数组的length，vm.items.length = newLength
+//在vue2中变更数组的方法如pop，push等，都被vue重写,下面代码重点为了研究如何覆盖原始方法
+//在vue2中如果发现obj是数组的话其实不是直接监测，而是重写方法。原因是`defineProperty`其实可以触发数组索引
+//考虑性能原因，选择重写数组方法是更好的选择。
+//因此 obj如果是数组类型，那么通过Object.setPrototypeOf(obj,arrayMethods)，将数组原型对象覆盖来达到目的。
 
   function observe2(obj) {
     if (!isObject(obj)) {
@@ -141,7 +145,10 @@ let obj = {
     }
   }
 
-
+// override Array， 重写Array方法
+//首先定义了一个def函数，这个函数就是用来定义属性的，在重写array方法时，这个函数就用来覆盖本身方法
+//在 methodsToPatch.forEach(()=>....)函数内部，将改动的数据inserted，直接调用`observerArray`
+//去监测
   function def(obj, key, value, enumerable= false) {
     Object.defineProperty(obj, key, {
       value,
@@ -151,7 +158,7 @@ let obj = {
     });
   }
 
-// override Array
+
 const originalArray = Array.prototype
 const arrayMethods = Object.create(originalArray)
 
