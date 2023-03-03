@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVVM</title>
+</head>
+<body>
+    <div id="mvvm-app">
+        <div>v-model</div>
+        <input type="text" v-model='count' />
+        <div>{{count}}</div>
+
+        <div>computed</div>
+        <p>{{ hellowordStr }}</p>
+        <button v-on:click="clickBtn">change model</button>
+
+       
+    </div>
+
+    <script src="./observer.js"></script>
+    <script src ="./watch.js"></script>
+    <script src="./compiler.js"></script>
+    <script src="./mvvm.js"></script>
+
+    <script>
+        let vm = new MVVM({
+        el: '#mvvm-app',
+        data: {
+            getHelloWord:'hello',
+            count:1,
+        },
+        computed:{
+            hellowordStr() {
+                return this.getHelloWord
+            }
+        },
+        methods:{
+           
+            clickBtn: function(e) {
+                var randomStrArr = ['childOne', 'childTwo', 'childThree'];
+                this.getHelloWord = randomStrArr[parseInt(Math.random() * 3)];
+            }
+        }
+    })
+        </script>
+
+</body>
+</html>
