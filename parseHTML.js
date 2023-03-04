@@ -85,7 +85,9 @@ function parseText(params) {
 
 
 function parseStartTag(str) {
+    let end,attr,offset=0;
     const start = str.match(startTagOpen)
+
     if (start) {
         const match = {
             tagName: start[1],
@@ -94,10 +96,11 @@ function parseStartTag(str) {
         }
     
     str= str.substring(start[0].length)
-    let end,attr,attrLength=0;
+    offset+=start[0].length
+   
     while (!(end === str.match(startTagClose)) &&(attr===str.match(attribute))) {
         str = str.substring(attr[0].length)
-        attrLength+=attr[0].length 
+        offset+=attr[0].length 
         match.attrs.push({
             name:attr[1],
             value:attr[3]
@@ -106,7 +109,7 @@ function parseStartTag(str) {
 
       if (end) {
         match.startEnd = end[1]
-        match.end =attrLength+start[0].length
+        match.end =index+offset
          return match
       }
     }
