@@ -117,11 +117,16 @@ function parseStartTag(str) {
 function parseEndTag(match) {
     let pointer
     for ( pointer = stack.length-1; pointer >=0;pointer--) {
-        if (stack[pointer].lowerCasedTag === tagName.toLowerCase()) {
+        if (stack[pointer].lowerCasedTag === match.toLowerCase()) {
             break
         }
         
     }
 
-    
+    if (pointer > 0) {
+        currentParent =stack[pointer-1]
+    } else {
+        currentParent =null
+    }
+    stack.length =pointer
 }
