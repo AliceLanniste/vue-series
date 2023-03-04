@@ -45,6 +45,7 @@ function parseHTML(html) {
             let element = {
                 type:1,
                 tagName:startMatch.tagName,
+                lowerCasedTag:startMatch.tagName.toLowerCase(),
                 attributes:startMatch.attrs,
                 currentParent:currentParent,
                 children:[]
@@ -113,6 +114,12 @@ function parseStartTag(str) {
 
 
 
-function parseEndTag(params) {
-    
+function parseEndTag(match) {
+    let pointer
+    for ( pointer = stack.length-1; pointer >=0;pointer--) {
+        if (stack[pointer].lowerCasedTag === tagName.toLowerCase()) {
+            
+        }
+        
+    }
 }
