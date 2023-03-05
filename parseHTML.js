@@ -89,7 +89,7 @@ function parseHTML(html) {
                     text,
                 })
             }
-            html = html.substring(textEnd.length)
+            html = html.substring(text.length)
             continue
         }
         
@@ -101,7 +101,9 @@ function parseHTML(html) {
 function parseText(text) {
     if (!defaultTagRE.test(text)) return
     const tokens=[]
-    let match
+    let match;
+    
+
     while ((match = defaultTagRE.exec(text))) {
         const exp = match[1].trim()
         tokens.push(exp)
