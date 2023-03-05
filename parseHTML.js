@@ -45,9 +45,12 @@ function parseHTML(html) {
                 tagName:startMatch.tagName,
                 lowerCasedTag:startMatch.tagName.toLowerCase(),
                 attributes:startMatch.attrs,
+                attributeMap:makeAttrsMap(startMatch.attrs),
                 currentParent:currentParent,
                 children:[]
             }
+            processIf(element)
+            processFor(element)
             if(!root) {
                 root = element
                
@@ -165,6 +168,53 @@ function parseEndTag(match) {
     stack.length =pointer
 }
 
+function getKey(el,name) {
+    let value;
+    if ((value = el.attributeMap[name]) !== null) {
+        const list = el.attributes
+        for (let index = 0; index < list.length; index++) {
+            if (list[index].name === name ) {
+                list.splice(index, 1)
+                break
+            }
+            
+        }
+    }
+    return value
+}
+
+function makeAttrsMap(attrList) {
+    const attrMap = {}
+    for (let index = 0; index < attrList.length; index++) {
+        let name = attrList[index].name
+        let value = attrList[index].value
+        attrMap[name] =value
+    }
+    return attrMap
+}
+function processIf(el) {
+    let exp = getKey(el,'v-if')
+    if (exp) {
+        el.if = exp;
+        if (!el.ifConditions) {
+            el.ifConditions = [];
+        }
+        el.ifConditions.push({
+            exp: exp,
+            block: el
+        }); 
+    }
+}
+
+
+function processFor(el) {
+    let exp;
+    if ((exp =getKey(el, 'v-for'))) {
+        const inMatch = exp.match(forAliasRE);
+        el.for = inMatch[2].trim();
+        el.alias = inMatch[1].trim();
+    }
+}
 
 // markStatic
 function optimize(ast) {
@@ -214,3 +264,5 @@ function optimize(ast) {
 let rootAst = parse(htmlStr)
 optimize(rootAst)
 console.log('rootAst',rootAst)
+
+
