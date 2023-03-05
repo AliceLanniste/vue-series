@@ -31,8 +31,6 @@ function advance(length) {
     return htmlStr.substring(length)
 
 }
-
-
 function parse(str) {
     return parseHTML(str)
 }
@@ -50,37 +48,65 @@ function parseHTML(html) {
                 currentParent:currentParent,
                 children:[]
             }
-
             if(!root) {
                 root = element
+               
             }
             if (currentParent) {
-                element.currentParent = currentParent
+                currentParent.children.push(element);
             }
 
             if (!startMatch.startEnd) {
                 stack.push(element)
                 currentParent= element
             }
-            html = html.substring(startMatch.end)
+            html = html.substring(startMatch.offset)
             continue
         }
+      
         if (html.match(endTag)) {
             let endMatch = html.match(endTag)
             parseEndTag(endMatch[1])
-            html = advance(endMatch[0].length)
+            html = html.substring(endMatch[0].length)
+          
             continue
-        } else {
-
+        } 
+        
+        if (html.indexOf('<') > 0) {
+            
+            const textEnd = html.indexOf('<')
+            let text =html.substring(0,textEnd)
+            let expression
+            if (expression = parseText(text)) {
+                currentParent.children.push({
+                    type: 2,
+                    text,
+                    expression
+                })
+            } else {
+                currentParent.children.push({
+                    type: 3,
+                    text,
+                })
+            }
+            html = html.substring(textEnd.length)
+            continue
         }
-
-        return root
+        
     }
+    return root
 }
 
 
-function parseText(params) {
-    
+function parseText(text) {
+    if (!defaultTagRE.test(text)) return
+    const tokens=[]
+    let match
+    while ((match = defaultTagRE.exec(text))) {
+        const exp = match[1].trim()
+        tokens.push(exp)
+    }
+    return tokens.join('')
 }
 
 
@@ -93,6 +119,7 @@ function parseStartTag(str) {
             tagName: start[1],
             attrs:[],
             start:index,
+            offset:start[0].length
         }
     
         str= str.substring(start[0].length)
@@ -108,7 +135,9 @@ function parseStartTag(str) {
         }
         if (end) {
             match.startEnd = end[1]
-            match.end =index+offset
+            match.end =index+offset+end[0].length
+            match.offset = offset+end[0].length
+            index = match.end
             return match
         }
     }
@@ -134,3 +163,5 @@ function parseEndTag(match) {
 }
 
 
+let rootAst = parse(htmlStr)
+console.log('rootAst',rootAst)
