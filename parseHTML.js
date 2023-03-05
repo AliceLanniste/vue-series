@@ -100,15 +100,16 @@ function parseHTML(html) {
 
 function parseText(text) {
     if (!defaultTagRE.test(text)) return
-    const tokens=[]
-    let match;
-    
-
+    const tokens = [];
+    defaultTagRE.lastIndex =0
+    let match, index
     while ((match = defaultTagRE.exec(text))) {
+        index = match.index
         const exp = match[1].trim()
         tokens.push(exp)
     }
-    return tokens.join('')
+
+    return tokens.join('+');
 }
 
 
