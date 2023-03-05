@@ -69,11 +69,12 @@ function parseHTML(html) {
             let endMatch = html.match(endTag)
             parseEndTag(endMatch[1])
             html = advance(endMatch[0].length)
-
+            continue
         } else {
 
         }
 
+        return root
     }
 }
 
@@ -87,7 +88,6 @@ function parseText(params) {
 function parseStartTag(str) {
     let end,attr,offset=0;
     const start = str.match(startTagOpen)
-
     if (start) {
         const match = {
             tagName: start[1],
@@ -95,23 +95,22 @@ function parseStartTag(str) {
             start:index,
         }
     
-    str= str.substring(start[0].length)
-    offset+=start[0].length
-   
-    while (!(end === str.match(startTagClose)) &&(attr===str.match(attribute))) {
-        str = str.substring(attr[0].length)
-        offset+=attr[0].length 
-        match.attrs.push({
-            name:attr[1],
-            value:attr[3]
-        })
-      }
+        str= str.substring(start[0].length)
+        offset+=start[0].length
 
-      if (end) {
-        match.startEnd = end[1]
-        match.end =index+offset
-         return match
-      }
+        while (!(end = str.match(startTagClose)) &&(attr=str.match(attribute))) {
+            str = str.substring(attr[0].length)
+            offset+=attr[0].length 
+            match.attrs.push({
+                name:attr[1],
+                value:attr[3]
+            })
+        }
+        if (end) {
+            match.startEnd = end[1]
+            match.end =index+offset
+            return match
+        }
     }
 }
 
@@ -133,3 +132,5 @@ function parseEndTag(match) {
     }
     stack.length =pointer
 }
+
+
